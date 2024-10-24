@@ -50,7 +50,7 @@ def apply_mvi(in_path, out_path, algorithm):
     # Set the imputer.
     #imputer = IterativeImputer(max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
     #imputer = IterativeImputer(estimator=BaggingRegressor() ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
-    imputer = IterativeImputer(estimator=RandomForestRegressor(n_estimators=100) ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
+    imputer = IterativeImputer(estimator=RandomForestRegressor(n_estimators=50, max_depth=10) ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
 
     # Impute missing values.
     target_name = newds.columns[-1]
