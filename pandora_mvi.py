@@ -29,7 +29,12 @@ import pandas as pd
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.impute import SimpleImputer
+
+from Imputer import SimpleImputerDACL
+from Imputer import IterativeImputerDACL
+
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import BaggingRegressor
 import sys
 
 def apply_mvi(in_path, out_path, algorithm):
@@ -44,23 +49,25 @@ def apply_mvi(in_path, out_path, algorithm):
 
     # Loading dataset.
     dataset = pd.read_csv(in_path)
-    newds = dataset.copy()
-    newds = newds.drop('timestamp', axis=1)
+    # newds = dataset.copy()
+    # newds = newds.drop('timestamp', axis=1)
 
-    # Set the imputer.
-    #imputer = IterativeImputer(max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
-    #imputer = IterativeImputer(estimator=BaggingRegressor() ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
-    imputer = IterativeImputer(estimator=RandomForestRegressor(n_estimators=50, max_depth=10) ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
+    # # Set the imputer.
+    # #imputer = IterativeImputer(max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
+    # #imputer = IterativeImputer(estimator=BaggingRegressor() ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
+    # imputer = IterativeImputer(estimator=RandomForestRegressor(n_estimators=50, max_depth=10) ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
 
-    # Impute missing values.
-    target_name = newds.columns[-1]
-    target_data = newds[target_name]
-    newds.drop(newds.columns[-1], axis=1, inplace=True)
-    newds = pd.DataFrame(imputer.fit_transform(newds), columns=newds.columns)
-    newds[target_name] = target_data
+    # # Impute missing values.
+    # target_name = newds.columns[-1]
+    # target_data = newds[target_name]
+    # newds.drop(newds.columns[-1], axis=1, inplace=True)
+    # newds = pd.DataFrame(imputer.fit_transform(newds), columns=newds.columns)
+    # newds[target_name] = target_data
 
-    # Save imputed dataset.
-    newds.insert(0, 'timestamp', dataset['timestamp'])
+    # # Save imputed dataset.
+    # newds.insert(0, 'timestamp', dataset['timestamp'])
+    imputer = IterativeImputerDACL(dataset=dataset, estimator=BaggingRegressor(), columns_to_remove=['timestamp', 'bag_file']) if algorithm == 'iterative' else SimpleImputerDACL(dataset=dataset, columns_to_remove=['timestamp', 'bag_file'])
+    newds = imputer.impute()
     newds.to_csv(out_path, index=False)
 
 if __name__ == '__main__':
