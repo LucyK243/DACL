@@ -1,3 +1,13 @@
+"""
+PANDORA 
+
+Missing Value Imputers
+
+Author
+----------
+lucy@dmi.uns.ac.rs
+"""
+
 from abc import ABC, abstractmethod
 import numpy as np
 from pandas import DataFrame
@@ -15,34 +25,30 @@ class Imputer(ABC):
         '''
         pass
     
-    def prepape_data(self, dataset:DataFrame, columns_to_remove=None):
+    def prepape_data(self, dataset:DataFrame, columns_to_ignore=None):
         '''
         Removes features that do not contain missing values or MVI does not apply
         If columns_to_remove == None returns copy of dataset
         '''
         dscopy = dataset.copy()
-        print(dscopy)
-        print(dataset)
-        if columns_to_remove != None:
-            for column in columns_to_remove:
+        if columns_to_ignore != None:
+            for column in columns_to_ignore:
                 dscopy.drop(column, axis=1, inplace=True)
-                
-        print(dscopy)
                 
         return dscopy    
     
     
     
 class SimpleImputerDACL(Imputer):
-    def __init__(self, dataset:DataFrame, columns_to_remove=None, missing_values=np.nan, strategy='mean'):
+    def __init__(self, dataset:DataFrame, columns_to_ignore=None, missing_values=np.nan, strategy='mean'):
         super().__init__()
         self.dataset = dataset
-        self.columns_to_remove = columns_to_remove
+        self.columns_to_ignore = columns_to_ignore
         self.missing_values = missing_values
         self.strategy = strategy
         
     def impute(self):       
-        dscopy = self.prepape_data(self.dataset, self.columns_to_remove)
+        dscopy = self.prepape_data(self.dataset, self.columns_to_ignore)
         imputer = SimpleImputer(missing_values=self.missing_values, strategy=self.strategy)
         dscopy = DataFrame(imputer.fit_transform(dscopy), columns=dscopy.columns)
         
@@ -55,15 +61,15 @@ class SimpleImputerDACL(Imputer):
     
     
 class IterativeImputerDACL(Imputer):
-    def __init__(self, dataset:DataFrame, estimator, max_iter=10, random_state=0, columns_to_remove = None):
+    def __init__(self, dataset:DataFrame, estimator, max_iter=10, random_state=0, columns_to_ignore = None):
         self.dataset = dataset
         self.estimator = estimator
         self.max_iter = max_iter
         self.random_state = random_state
-        self.columns_to_remove = columns_to_remove
+        self.columns_to_ignore = columns_to_ignore
         
     def impute(self):
-        datacopy = self.prepape_data(self.dataset, self.columns_to_remove)
+        datacopy = self.prepape_data(self.dataset, self.columns_to_ignore)
         imputer = IterativeImputer(estimator=self.estimator, max_iter=self.max_iter, random_state=self.random_state)
         datacopy = DataFrame(imputer.fit_transform(datacopy), columns=datacopy.columns)
 
