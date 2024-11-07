@@ -12,7 +12,8 @@ Arguments
 -a, --algorithm (optional)
     MVI algorithm. Possible values:
     simple - takes the mean of attribute's values, and uses it to fill the missing values,
-    iterative (default) - creates a predictive model for each attribute, and uses it to fill the missing values.
+    iterative (default) - creates a predictive model for each attribute, and uses it to fill the missing values,
+    knn - imputation of missing data using k-Nearest Neighbours.
 -h, --help (optional)
     Displays help.
 
@@ -34,6 +35,8 @@ from Imputer import SimpleImputerDACL
 from Imputer import IterativeImputerDACL
 from Imputer import KNNImputerDACL
 
+from mvi_statistic import count_missing_values
+
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import BaggingRegressor
 import sys
@@ -50,31 +53,18 @@ def apply_mvi(in_path, out_path, algorithm):
 
     # Loading dataset.
     dataset = pd.read_csv(in_path)
-    # newds = dataset.copy()
-    # newds = newds.drop('timestamp', axis=1)
-
-    # # Set the imputer.
-    # #imputer = IterativeImputer(max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
-    # #imputer = IterativeImputer(estimator=BaggingRegressor() ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
-    # imputer = IterativeImputer(estimator=RandomForestRegressor(n_estimators=50, max_depth=10) ,max_iter=10, random_state=0) if algorithm == 'iterative' else SimpleImputer(missing_values=np.nan, strategy='mean')
-
-    # # Impute missing values.
-    # target_name = newds.columns[-1]
-    # target_data = newds[target_name]
-    # newds.drop(newds.columns[-1], axis=1, inplace=True)
-    # newds = pd.DataFrame(imputer.fit_transform(newds), columns=newds.columns)
-    # newds[target_name] = target_data
-
-    # # Save imputed dataset.
-    # newds.insert(0, 'timestamp', dataset['timestamp'])
+    
+    # Imputing missing data
     imputer = None
     if algorithm == 'iterative':
         imputer = IterativeImputerDACL(dataset=dataset, estimator=BaggingRegressor(), columns_to_ignore=['timestamp', 'bag_file'])
     elif algorithm == 'knn':
-        imputer = KNNImputerDACL(dataset=dataset, columns_to_ignore=['timestamp', 'bag_file'])
+        imputer = KNNImputerDACL(dataset=dataset, n=5, columns_to_ignore=['timestamp', 'bag_file'])
     else:
         imputer = SimpleImputerDACL(dataset=dataset, columns_to_ignore=['timestamp', 'bag_file']) 
     newds = imputer.impute()
+    
+    # Saving new data to file
     newds.to_csv(out_path, index=False)
 
 if __name__ == '__main__':
