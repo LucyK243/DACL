@@ -14,6 +14,7 @@ from pandas import DataFrame
 from sklearn.impute import SimpleImputer
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
+from sklearn.impute import KNNImputer
 
 
 class Imputer(ABC):
@@ -61,7 +62,7 @@ class SimpleImputerDACL(Imputer):
     
     
 class IterativeImputerDACL(Imputer):
-    def __init__(self, dataset:DataFrame, estimator, max_iter=10, random_state=0, columns_to_ignore = None):
+    def __init__(self, dataset:DataFrame, estimator, max_iter=10, random_state=0, columns_to_ignore=None):
         self.dataset = dataset
         self.estimator = estimator
         self.max_iter = max_iter
@@ -79,3 +80,23 @@ class IterativeImputerDACL(Imputer):
                 datacopy[column] = self.dataset[column]
         
         return datacopy
+    
+    
+class KNNImputerDACL(Imputer):
+    def __init__(self, dataset:DataFrame, n=2, columns_to_ignore=None):
+        self.dataset = dataset
+        self.n = n
+        self.columns_to_ignore = columns_to_ignore
+        
+    def impute(self):
+        dscopy = self.prepape_data(self.dataset, self.columns_to_ignore)
+        imputer = KNNImputer(missing_values=np.nan, n_neighbors=self.n)
+        dscopy = DataFrame(imputer.fit_transform(dscopy), columns=dscopy.columns)
+        
+        # return removed columns
+        for column in self.dataset:
+            if column not in dscopy.columns:
+                dscopy[column] = self.dataset[column]
+                
+        return dscopy
+        

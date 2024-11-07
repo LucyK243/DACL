@@ -32,6 +32,7 @@ from sklearn.impute import SimpleImputer
 
 from Imputer import SimpleImputerDACL
 from Imputer import IterativeImputerDACL
+from Imputer import KNNImputerDACL
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import BaggingRegressor
@@ -66,7 +67,13 @@ def apply_mvi(in_path, out_path, algorithm):
 
     # # Save imputed dataset.
     # newds.insert(0, 'timestamp', dataset['timestamp'])
-    imputer = IterativeImputerDACL(dataset=dataset, estimator=BaggingRegressor(), columns_to_remove=['timestamp', 'bag_file']) if algorithm == 'iterative' else SimpleImputerDACL(dataset=dataset, columns_to_remove=['timestamp', 'bag_file'])
+    imputer = None
+    if algorithm == 'iterative':
+        imputer = IterativeImputerDACL(dataset=dataset, estimator=BaggingRegressor(), columns_to_ignore=['timestamp', 'bag_file'])
+    elif algorithm == 'knn':
+        imputer = KNNImputerDACL(dataset=dataset, columns_to_ignore=['timestamp', 'bag_file'])
+    else:
+        imputer = SimpleImputerDACL(dataset=dataset, columns_to_ignore=['timestamp', 'bag_file']) 
     newds = imputer.impute()
     newds.to_csv(out_path, index=False)
 
@@ -75,7 +82,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Missing values imputation (MVI).')
     parser.add_argument('-d', '--dataset', help='Path to the dataset.', required=True)
     parser.add_argument('-o', '--out', default='', help='Path to the output file. If not given, resulting dataset will be saved in the current directory.')
-    parser.add_argument('-a', '--algorithm', default='iterative', help='MVI algorithm. Possible values:\nsimple - takes the mean of attribute\'s values, and uses it to fill the missing values,\niterative (default) - creates a predictive model for each attribute, and uses it to fill the missing values.')
+    parser.add_argument('-a', '--algorithm', default='iterative', help='MVI algorithm. Possible values:\nsimple - takes the mean of attribute\'s values, and uses it to fill the missing values,\niterative (default) - creates a predictive model for each attribute, and uses it to fill the missing values, \nknn - imputation of missing data using k-Nearest Neighbours.')
     args = parser.parse_args()
 
     apply_mvi(args.dataset, args.out, args.algorithm)
