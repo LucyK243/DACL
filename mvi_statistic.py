@@ -18,25 +18,43 @@ def data_has_missing_values(dataset:DataFrame):
             print(col, ' has empty ',dataset[col].isnull().values.any())
             
 def check_treshold(dataset:DataFrame, columns:list, tresholds:list):
+    # maping columns to tresholds
     ctmap = dict()
     for i in range(0, len(columns)):
         ctmap[columns[i]] = tresholds[i]
         
     tmap = dict()
-    dataset['anomaly'] = ""
+    anomalies = dict()
     
+    i = 0
     for col in columns:
-        i = 0
+        j = 0
         data = dataset[col]
         tmap[col] = 0
+        anomalies[i] = list()
         for cell in data:
             if cell >= ctmap[col]:
                 tmap[col] += 1
-                
-        if tmap[col] > 0:
-            dataset['anomaly'][i] = 1
+            if tmap[col] > 0:
+                anomalies[i].append(1)
+            else:
+                anomalies[i].append(0)
+            j+=1
+            
+        i+=1
+    
+    print(anomalies.keys())
+    anomalyList = list()
+    for key in anomalies.keys():
+        if len(anomalyList) == 0:
+            anomalyList = anomalies[key]
         else:
-            dataset['anomaly'][i] = 0
+            for i in range(len(anomalyList)):
+                if anomalyList[i] + anomalies[key][i] == 0:
+                    anomalyList[i] = 0
+                else:
+                    anomalyList[i] = 1        
+    dataset['anomaly'] = anomalyList
         
     return dataset
 
