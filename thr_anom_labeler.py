@@ -2,10 +2,10 @@
 class ThresholdAnomalyLabeler:
     """
         dataframe -- pandas dataframe
-        logop     -- logical operator in {and, or}
-        columns   -- columns that have threshold
+        logop     -- logical operator in {"and", "or"}
+        columns   -- columns that have thresholds
         threshold -- threshold values
-        relop     -- list of threshold relational operator in {"<", ">"}
+        relop     -- list of threshold relational operators in {"<", ">"}
     """
     def __init__(self, dataframe, logop, columns, thresholds, relop):
         self.df = dataframe
