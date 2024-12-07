@@ -3,6 +3,55 @@ import numpy as np
 import pandas as pd
 
 
+class MVIStats:
+    def __init__(self, dataframe: DataFrame):
+        self.df = dataframe
+        self.has_missing_values = False
+        self.mv_dict = {}
+        self.count_missing_values()
+        
+        
+    def count_missing_values(self):
+        for column in self.df.columns:
+            counter = 0
+            for data in self.df[column]:
+                if pd.isna(data):
+                    counter += 1
+                 
+            if counter > 0:
+                self.has_missing_values = True
+                self.mv_dict[column] = counter
+                
+        self.mv_dict = {k: v for k, v in sorted(self.mv_dict.items(), reverse=True, key=lambda item: item[1])}
+        
+                
+    def info(self):
+        num_rows = self.df.shape[0]
+        num_columns = self.df.shape[1]
+        print("#rows", num_rows)
+        print("#columns", num_columns)
+        print("Has missing values", self.has_missing_values)
+        print("Columns with missing values -- the number of instances")
+        for column in self.mv_dict:
+            mvinst = self.mv_dict[column]
+            perc = round(100.0 * mvinst / num_rows, 2)
+            print(column, self.mv_dict[column], perc, "%")
+            
+            
+    def has_missing_values(self):
+        return self.has_missing_values
+    
+    
+    def get_missing_features(self):
+        """
+        Returns dictionary mapping features to the number of instances with missing values
+        """
+        return self.mv_dict
+            
+                    
+        
+
+
 def count_missing_values(dataset:DataFrame):
     for column in dataset.columns:
         counter = 0
