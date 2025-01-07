@@ -34,6 +34,7 @@ from sklearn.impute import SimpleImputer
 from Imputer import SimpleImputerDACL
 from Imputer import IterativeImputerDACL
 from Imputer import KNNImputerDACL
+from Imputer import HyperimputeDACL
 
 from mvi_statistic import count_missing_values
 
@@ -41,7 +42,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import BaggingRegressor
 import sys
 
-def apply_mvi(in_path, out_path, algorithm):
+def apply_mvi(in_path, out_path, algorithm, method):
     # Checking if the dataset exists.
     if not os.path.exists(in_path):
         print('Error: Path "' + in_path + '" does not exist.')
@@ -60,6 +61,8 @@ def apply_mvi(in_path, out_path, algorithm):
         imputer = IterativeImputerDACL(dataset=dataset, estimator=BaggingRegressor(), columns_to_ignore=['timestamp', 'bag_file'])
     elif algorithm == 'knn':
         imputer = KNNImputerDACL(dataset=dataset, n=5, columns_to_ignore=['timestamp', 'bag_file'])
+    elif algorithm == 'hyperimputer':
+        imputer = HyperimputeDACL(dataset=dataset, imputer=method, columns_to_ignore=['timestamp', 'bag_file'])
     else:
         imputer = SimpleImputerDACL(dataset=dataset, columns_to_ignore=['timestamp', 'bag_file']) 
     newds = imputer.impute()
@@ -72,7 +75,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Missing values imputation (MVI).')
     parser.add_argument('-d', '--dataset', help='Path to the dataset.', required=True)
     parser.add_argument('-o', '--out', default='', help='Path to the output file. If not given, resulting dataset will be saved in the current directory.')
-    parser.add_argument('-a', '--algorithm', default='iterative', help='MVI algorithm. Possible values:\nsimple - takes the mean of attribute\'s values, and uses it to fill the missing values,\niterative (default) - creates a predictive model for each attribute, and uses it to fill the missing values, \nknn - imputation of missing data using k-Nearest Neighbours.')
+    parser.add_argument('-a', '--algorithm', default='iterative', help='MVI algorithm. Possible values:\nsimple - takes the mean of attribute\'s values, and uses it to fill the missing values,\niterative (default) - creates a predictive model for each attribute, and uses it to fill the missing values, \nknn - imputation of missing data using k-Nearest Neighbours,\nhyperimputer - imputation of missing data using hyperimputer library.')
+    parser.add_argument('-m', '--method', default='mean', help='Method for hyperimputer library; can be: median, ice, most_frequent, gain, miwae, sklearn_missforest, softimpute, mean, EM, hyperimpute, sinkhorn, missforest')
     args = parser.parse_args()
 
-    apply_mvi(args.dataset, args.out, args.algorithm)
+    apply_mvi(args.dataset, args.out, args.algorithm, args.method)

@@ -15,6 +15,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.impute import KNNImputer
+from hyperimpute.plugins.imputers import Imputers
 
 
 class Imputer(ABC):
@@ -92,6 +93,32 @@ class KNNImputerDACL(Imputer):
         dscopy = self.prepape_data(self.dataset, self.columns_to_ignore)
         imputer = KNNImputer(missing_values=np.nan, n_neighbors=self.n)
         dscopy = DataFrame(imputer.fit_transform(dscopy), columns=dscopy.columns)
+        
+        # return removed columns
+        for column in self.dataset:
+            if column not in dscopy.columns:
+                dscopy[column] = self.dataset[column]
+                
+        return dscopy
+        
+
+class HyperimputeDACL(Imputer):
+    def __init__(self, dataset:DataFrame, imputer:str, columns_to_ignore=None):
+        '''
+        imputer -- one value from: median, ice, most_frequent, gain, miwae,
+                    sklearn_missforest, softimpute, mean, EM, hyperimpute, sinkhorn, missforest
+        '''
+        self.dataset = dataset
+        self.imputer = imputer
+        self.columns_to_ignore = columns_to_ignore
+
+    def impute(self):
+        dscopy = self.prepape_data(self.dataset, self.columns_to_ignore)
+        imputer = Imputers().get(self.imputer)
+        out = imputer.fit_transform(dscopy)
+        out.columns = dscopy.columns
+        dscopy = out
+        
         
         # return removed columns
         for column in self.dataset:
