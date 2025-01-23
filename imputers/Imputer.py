@@ -1,7 +1,7 @@
 """
 PANDORA 
 
-Missing Value Imputers
+Missing Value Imputers -- SOTA methods
 
 Author
 ----------

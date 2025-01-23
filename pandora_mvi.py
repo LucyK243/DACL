@@ -31,10 +31,10 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.impute import SimpleImputer
 
-from Imputer import SimpleImputerDACL
-from Imputer import IterativeImputerDACL
-from Imputer import KNNImputerDACL
-from Imputer import HyperimputeDACL
+from imputers.Imputer import SimpleImputerDACL
+from imputers.Imputer import IterativeImputerDACL
+from imputers.Imputer import KNNImputerDACL
+from imputers.Imputer import HyperimputeDACL
 
 from mvi_statistic import count_missing_values
 
