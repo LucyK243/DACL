@@ -30,9 +30,11 @@ mvis.info()
 dataset = pd.read_csv('data/eab_sample_zero_knn5.csv')
 columns = ['throughput_DL', 'throughput_UL', 'delay_mean_DL', 'delay_mean_UL']
 thresholds = [7.2, 4.9, 1.1, 0.3]
+#thresholds = [9.7, 6.7, 0.8, 0.24]
+#thresholds = [11.3, 9.2, 0.52, 0.18]
 relop = ['<', '<', '>', '>']
 from thr_anom_labeler import ThresholdAnomalyLabeler
-tal = ThresholdAnomalyLabeler(dataset, 'and', columns, thresholds, relop)
+tal = ThresholdAnomalyLabeler(dataset, 'and', columns, thresholds, relop, ignore_zero_values=True)
 df = tal.save('data/eab_sample_zero_knn5_labeled.csv')
 from mvi_statistic import MVIStats
 mvis = MVIStats(df)

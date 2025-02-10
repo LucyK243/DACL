@@ -7,7 +7,7 @@ class ThresholdAnomalyLabeler:
         threshold -- threshold values
         relop     -- list of threshold relational operators in {"<", ">"}
     """
-    def __init__(self, dataframe, logop, columns, thresholds, relop):
+    def __init__(self, dataframe, logop, columns, thresholds, relop, ignore_zero_values=False):
         self.df = dataframe
         
         if logop != 'and' and logop != 'or':
@@ -27,6 +27,8 @@ class ThresholdAnomalyLabeler:
         self.thresholds = thresholds
         self.relop = relop
         
+        self.ignore_zero_values = ignore_zero_values
+        
         self.identify_anomalies()
         print("Total instances", self.df.shape[0])
         print("Total anomalies", self.num_anomalies)
@@ -42,6 +44,9 @@ class ThresholdAnomalyLabeler:
             lvalues = []
             for i in range(num_columns):
                 val = row[self.columns[i]]
+                if self.ignore_zero_values and val == 0:
+                    continue
+                
                 rel = self.relop[i]
                 thr = self.thresholds[i]
                 expr = str(val) + rel + str(thr)
