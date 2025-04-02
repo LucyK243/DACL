@@ -361,7 +361,7 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'])
+    dt = DataTable('data/sie-dataset1-mv25.csv', columns_to_ignore=['Time'])
     gt = DataTable('data/sie-dataset1.csv', columns_to_ignore=['Time'])
     
     num_features = dt.data_matrix.shape[1]

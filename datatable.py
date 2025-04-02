@@ -61,7 +61,7 @@ class DataTable:
                 # print(self.data_matrix[i][j], type(self.data_matrix[i][j]))
                 if np.isnan(self.data_matrix[i][j]):
                     if j not in self.missing_values_dict:
-                        self.missing_values_dict[j] = (self.column_names[j], [])
+                        self.missing_values_dict[j] = (self.column_names[j], [i])
                     else:
                         self.missing_values_dict[j][1].append(i)
                     
@@ -97,10 +97,10 @@ class DataTable:
             
     def save(self, out_file):
         if len(self.columns_to_ignore) > 0:
-            self.dataframe = pd.concat([self.columns_to_ignore_data, self.data_frame], axis=1)
+            self.dataframe = pd.concat([self.columns_to_ignore_data, self.dataframe], axis=1)
             
         if len(self.target_vars) > 0:
-            self.dataframe = pd.concat([self.data_frame, self.target_vars_data], axis=1)
+            self.dataframe = pd.concat([self.dataframe, self.target_vars_data], axis=1)
             
         self.dataframe.to_csv(out_file, index=False)
         
@@ -137,31 +137,38 @@ class DataTable:
         
             
 if __name__ == '__main__':
-    """
+    
+    '''
     # Step 1 -- removing some values from a complete dataset
     dt = DataTable('data/sie-dataset1.csv', 
         columns_to_ignore=['Time'],
         # target_vars = ['negative_image_counter_send_total - devx/trex-client', 'packet_rate_packets_per_second - devx/trex-client'], 
         verbose=True)
     
-    dt.remove_rnd_values(0.1)
-    dt.save('sie-dataset1-mv.csv')
-    """
+    dt.remove_rnd_values(0.25)
+    dt.save('data/sie-dataset1-mv25.csv')
+    '''
     
-    """
+    
     # Step 2 -- data imputation
     from imputers.Imputer import SimpleImputerDACL
-    df = pd.read_csv('data/sie-dataset1-mv.csv')
-    simpleImputer = SimpleImputerDACL(df, columns_to_ignore=['Time'])
+    from imputers.Imputer import HyperimputeDACL
+    from imputers.Imputer import KNNImputerDACL
+    df = pd.read_csv('data/sie-dataset1-mv25.csv')
+    simpleImputer = KNNImputerDACL(dataset=df, n=5, columns_to_ignore=['Time'])
+    #HyperimputeDACL(dataset=df, imputer='sinkhorn', columns_to_ignore=['Time']) 
+    #KNNImputerDACL(dataset=df, n=3, columns_to_ignore=['Time'])
+    #SimpleImputerDACL(dataset=df, columns_to_ignore=['Time'])
     sidf = simpleImputer.impute()
-    sidf.to_csv('data/sie-dataset-1-simple.csv', index=False)
-    """
+    sidf.to_csv('data/sie-dataset-1-25-knn5.csv', index=False)
     
-    """
+    
+    
+    
     # Step 3 -- comparison
     dt_orig = DataTable('data/sie-dataset1.csv', columns_to_ignore=['Time'])
-    dt_infr = DataTable('data/sie-dataset1-simple.csv', columns_to_ignore=['Time'])
+    dt_infr = DataTable('data/sie-dataset-1-25-knn5.csv', columns_to_ignore=['Time'])
     dt_orig.diff(dt_infr)
-    """
     
-    dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'], verbose=True)
+    
+    #dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'], verbose=True)
