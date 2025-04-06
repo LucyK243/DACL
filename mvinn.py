@@ -7,6 +7,7 @@ authors: {svc, lucy}@dmi.uns.ac.rs
 """
 
 import numpy as np
+import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -20,6 +21,8 @@ from sklearn.preprocessing import StandardScaler
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using {DEVICE} device")
+
+# torch.set_warn_always(True)
 
 class NNConf:
     """
@@ -337,6 +340,8 @@ class MVINN:
         time_elapsed = self.end_time - self.start_time 
         print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
             
+        self.imputed_data_matrix = dm
+        
         if self.ground_truth != None:
             self.final_mae, self.final_r2 = self.ground_truth.diff_data_matrix(dm)
             for cl in self.final_mae:
@@ -353,7 +358,11 @@ class MVINN:
                     
                 impr = (self.start_mae[cl] - self.final_mae[cl]) / self.start_mae[cl]     
                 impr *= 100
-                print(impr)     
+                print(impr)
+                
+    def save(self, file_name):
+        self.data_table.dataframe = pd.DataFrame(self.imputed_data_matrix, columns=self.data_table.column_names)
+        self.data_table.save(file_name)
          
                 
             
@@ -372,4 +381,9 @@ if __name__ == '__main__':
     
     mvinn = MVINN(dt, nn_conf, tl_conf=tl_conf, ground_truth=gt, num_iterations=5, verbose=False)
     mvinn.impute()
+    mvinn.save('data/sie-dataset1-nntl-mv25.csv')
+    
+    mvinn = MVINN(dt, nn_conf, tl_conf=None, ground_truth=gt, num_iterations=5, verbose=False)
+    mvinn.impute()
+    mvinn.save('data/sie-dataset1-nn-mv25.csv')
     
