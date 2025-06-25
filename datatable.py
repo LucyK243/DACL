@@ -115,7 +115,9 @@ class DataTable:
             
             self.r2[cn] = r2_score(c1, c2)
             self.mae[cn] = mean_absolute_error(c1, c2)
-            
+
+        print('column, R2, MAE')
+
         for cn in self.column_names:
             print(cn, self.r2[cn], self.mae[cn])
             
@@ -138,36 +140,37 @@ class DataTable:
             
 if __name__ == '__main__':
     
-    '''
+    
     # Step 1 -- removing some values from a complete dataset
-    dt = DataTable('data/sie-dataset1.csv', 
-        columns_to_ignore=['Time'],
+    dt = DataTable('data/eab_common_data.csv', 
+        columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'],
+        target_vars=['throughput (MB/s)', 'Latency(ms)'],
         # target_vars = ['negative_image_counter_send_total - devx/trex-client', 'packet_rate_packets_per_second - devx/trex-client'], 
         verbose=True)
     
     dt.remove_rnd_values(0.25)
-    dt.save('data/sie-dataset1-mv25.csv')
-    '''
+    dt.save('data/eab_common_data_mv25.csv')
+    
     
     
     # Step 2 -- data imputation
     from imputers.Imputer import SimpleImputerDACL
     from imputers.Imputer import HyperimputeDACL
     from imputers.Imputer import KNNImputerDACL
-    df = pd.read_csv('data/sie-dataset1-mv25.csv')
-    simpleImputer = KNNImputerDACL(dataset=df, n=5, columns_to_ignore=['Time'])
+    df = pd.read_csv('data/eab_common_data_mv25.csv')
+    simpleImputer = SimpleImputerDACL(dataset=df, columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'])
     #HyperimputeDACL(dataset=df, imputer='sinkhorn', columns_to_ignore=['Time']) 
     #KNNImputerDACL(dataset=df, n=3, columns_to_ignore=['Time'])
     #SimpleImputerDACL(dataset=df, columns_to_ignore=['Time'])
     sidf = simpleImputer.impute()
-    sidf.to_csv('data/sie-dataset-1-25-knn5.csv', index=False)
+    sidf.to_csv('data/eab_common_data-25-simple.csv', index=False)
     
     
     
     
     # Step 3 -- comparison
-    dt_orig = DataTable('data/sie-dataset1.csv', columns_to_ignore=['Time'])
-    dt_infr = DataTable('data/sie-dataset-1-25-knn5.csv', columns_to_ignore=['Time'])
+    dt_orig = DataTable('data/eab_common_data.csv', columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'],  target_vars=['throughput (MB/s)', 'Latency(ms)'])
+    dt_infr = DataTable('data/eab_common_data-25-simple.csv', columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'],  target_vars=['throughput (MB/s)', 'Latency(ms)'])
     dt_orig.diff(dt_infr)
     
     

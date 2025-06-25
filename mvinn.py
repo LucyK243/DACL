@@ -370,20 +370,20 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    dt = DataTable('data/sie-dataset1-mv25.csv', columns_to_ignore=['Time'])
-    gt = DataTable('data/sie-dataset1.csv', columns_to_ignore=['Time'])
+    dt = DataTable('data/eab_common_data_mv25.csv', columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'], target_vars=['throughput (MB/s)', 'Latency(ms)'])
+    gt = DataTable('data/eab_common_data.csv', columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'], target_vars=['throughput (MB/s)', 'Latency(ms)'])
     
     num_features = dt.data_matrix.shape[1]
     input_features = num_features - 1
     
-    nn_conf = NNConf(input_features, default_NN_arch(input_features), batch_norm=False, batch_size=32, dropout=0.1)
+    nn_conf = NNConf(input_features, default_NN_arch(input_features), batch_norm=False, batch_size=256, dropout=0.1)
     tl_conf = TLConf(2, freeze=False)
     
     mvinn = MVINN(dt, nn_conf, tl_conf=tl_conf, ground_truth=gt, num_iterations=5, verbose=False)
     mvinn.impute()
-    mvinn.save('data/sie-dataset1-nntl-mv25.csv')
+    mvinn.save('data/eab_common_data-25-nntl.csv')
     
     mvinn = MVINN(dt, nn_conf, tl_conf=None, ground_truth=gt, num_iterations=5, verbose=False)
     mvinn.impute()
-    mvinn.save('data/sie-dataset1-nn-mv25.csv')
+    mvinn.save('data/eab_common_data-25-nn.csv')
     

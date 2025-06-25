@@ -198,6 +198,28 @@ def evaluateForAllFeatures(data):
     for s in final_rep:
         print(s)
 
+def evaluateForTargetFeatures(data, target_features):
+    num_features = data.data_matrix.shape[1]
+    final_rep = []
+    for feature in target_features:
+        i = None
+        for col in range(num_features):
+            if data.column_names[col] == feature:
+                i = col
+                break
+        res = evaluateRegModels(data, i)
+        if res != None:
+            tf = data.column_names[i]
+            s = tf + "," + res[0] + "," + str(round(res[1], 4)) + "," + str(round(res[2], 4))
+            final_rep.append(s)
+           
+    print("\n\n") 
+    print("-- FINAL REPORT")
+    print("FEATURE,REGRESSOR,MAE,R2")
+    for s in final_rep:
+        print(s)
+
+
 if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
