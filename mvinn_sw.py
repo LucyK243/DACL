@@ -361,6 +361,8 @@ class MVINN:
         # setup neural network dictionary
         self.NN = {}
         
+        self.results = dict()
+        
         dm = self.start_matrix
         for i in range(self.num_iterations):
             dm = self.mvi_iteration(i, dm)
@@ -379,6 +381,8 @@ class MVINN:
                 print(cl)
                 print("MAE", self.start_mae[cl], self.final_mae[cl])
                 print("R^2", self.start_r2[cl], self.final_r2[cl])
+                
+                # self.results[cl] = (self.start_mae[cl], self.start_r2[cl], self.final_mae[cl], self.final_r2[cl])
             
                 if self.start_mae[cl] == 0.0:
                     continue
@@ -388,6 +392,7 @@ class MVINN:
                     
                 impr = (self.start_mae[cl] - self.final_mae[cl]) / self.start_mae[cl]     
                 impr *= 100
+                self.results[cl] = (self.start_mae[cl], self.start_r2[cl], self.final_mae[cl], self.final_r2[cl], impr)
                 print(impr)
                 
     def save(self, file_name):
@@ -415,9 +420,34 @@ if __name__ == '__main__':
     
     mvinn = MVINN(dt, nn_conf, tl_conf=tl_conf, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=5)
     mvinn.impute()
+    #print(mvinn.results)
     #mvinn.save('data/sie-dataset1-nntl-mv25.csv')
+    nn_res = mvinn.results
     
     mvinn = MVINN(dt, nn_conf, tl_conf=None, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=5)
     mvinn.impute()
+    #print(mvinn.results)
     #mvinn.save('data/sie-dataset1-nn-mv25.csv')
+    nntl_res = mvinn.results
     
+    print("\n\n")
+    print("FIELD,MAE-simple,R2-simple,MAE-nn,R2-nn,impr-nn,MAE-nntl,R2-nntl,impr-nntl")
+    for field in nn_res:
+        res_nn = nn_res[field]
+        res_nntl = nntl_res[field]
+        
+        mae_simple, r2_simple = round(res_nn[0], 4), round(res_nn[1], 4)
+        mae_nn, r2_nn = round(res_nn[2], 4), round(res_nn[3], 4)
+        mae_nntl, r2_nntl = round(res_nntl[2], 4), round(res_nntl[3], 4)
+        
+        nn_impr = 0
+        if len(res_nn) == 4:
+            nn_impr = round(res_nn[4], 4)
+            
+        nntl_impr = 0
+        if len(res_nntl) == 4:
+            nntl_impr = round(res_nntl[4], 4)
+            
+        s = field + "," + str(mae_simple) + "," + str(r2_simple) + "," + str(mae_nn) + "," + str(r2_nn) + "," + str(nn_impr) + ","
+        s += str(mae_nntl) + "," + str(r2_nntl) + "," + str(nntl_impr) 
+        print(s)
