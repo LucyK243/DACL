@@ -202,5 +202,5 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    dt = DataTable('data_for_ml/sie-dataset1-nntl.csv', columns_to_ignore=['Time'])
+    dt = DataTable('data_for_ml/25/sie-dataset1-nntl-mv25.csv', columns_to_ignore=['Time'])
     evaluateForAllFeatures(dt)
