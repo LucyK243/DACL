@@ -208,7 +208,6 @@ class NeuralNet(nn.Module):
     
 
 def default_NN_arch(num_features):
-    #return [3 * num_features // 4, num_features // 2, num_features // 4]
     return [num_features // 2, num_features // 4]
 
 
@@ -266,8 +265,6 @@ class MVINN:
     
     def apply_sliding_window(self, X):
         dimX = X.shape[0]
-        dimY = X.shape[1]
-        #print(dimX, dimY)
         
         newX = []
         for i in range(dimX):
@@ -281,7 +278,6 @@ class MVINN:
             newX.append(newinst)
             
         newX = np.array(newX)
-        #print("-->", newX.shape[0], newX.shape[1])
         return newX
     
     def mvi_iteration(self, iteration_no, current_matrix):
@@ -289,14 +285,10 @@ class MVINN:
         scaler = StandardScaler()
         scaler.fit(current_matrix)
         data_matrix = scaler.transform(current_matrix)
-        
         next_matrix = data_matrix.copy()
-        
         num_features = data_matrix.shape[1]
-        # input_features = num_features - 1
         
         for target_feature in range(num_features):
-        # for target_feature in range(1):
             fname, missing_instances = self.mv_dict[target_feature]
             
             # form training data
@@ -307,7 +299,6 @@ class MVINN:
                 X = self.apply_sliding_window(X)
             
             if is_const(Y):
-                # print("Constant Y", fname, "skipped")
                 continue
             
             # form inference data
@@ -322,8 +313,6 @@ class MVINN:
             else:
                 nn = NeuralNet(self.nn_conf)
             
-            #print(X.shape)
-            #print(Y.shape)
             loss_start, loss_end = nn.train(X, Y)
 
             # make predictions for missing values
@@ -340,10 +329,8 @@ class MVINN:
                 print()
                 print("Finished training neural network for feature", target_feature, fname)
                 print("Missing instances", len(missing_instances))
-                #print("Training data shapes", X.shape, Y.shape)
-                #print("Inference data shape", inference_X.shape)
                 print("Loss start", loss_start.item(), "Loss end", loss_end.item())
-                # print("Neural network arch", nn)
+                
                 
         # inverse rescaling
         next_matrix = scaler.inverse_transform(next_matrix)
@@ -405,7 +392,8 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'])
+    #dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'])
+    dt = DataTable('data/sie-dataset1-mv25.csv', columns_to_ignore=['Time'])
     gt = DataTable('data/sie-dataset1.csv', columns_to_ignore=['Time'])
     
     sliding_window = 5
@@ -441,11 +429,11 @@ if __name__ == '__main__':
         mae_nntl, r2_nntl = round(res_nntl[2], 4), round(res_nntl[3], 4)
         
         nn_impr = 0
-        if len(res_nn) == 4:
+        if len(res_nn) == 5:
             nn_impr = round(res_nn[4], 4)
             
         nntl_impr = 0
-        if len(res_nntl) == 4:
+        if len(res_nntl) == 5:
             nntl_impr = round(res_nntl[4], 4)
             
         s = field + "," + str(mae_simple) + "," + str(r2_simple) + "," + str(mae_nn) + "," + str(r2_nn) + "," + str(nn_impr) + ","
