@@ -15,7 +15,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.impute import KNNImputer
-from hyperimpute.plugins.imputers import Imputers
+#from hyperimpute.plugins.imputers import Imputers
 
 
 class Imputer(ABC):
