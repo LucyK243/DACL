@@ -224,5 +224,6 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    dt = DataTable('data_for_ml/25/sie-dataset1-nntl-mv25.csv', columns_to_ignore=['Time'])
-    evaluateForAllFeatures(dt)
+    #dt = DataTable('data_for_ml/25/sie-dataset1-nntl-mv25.csv', columns_to_ignore=['Time'])
+    dt = DataTable('data_for_ml/eab_common_data.csv', columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'])
+    evaluateForTargetFeatures(dt, target_features=['throughput (MB/s)', 'Latency(ms)'])
