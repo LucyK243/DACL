@@ -14,7 +14,7 @@ import random as rnd
 from sklearn.metrics import r2_score, mean_absolute_error
 
 class DataTable:
-    def __init__(self, csv_file, target_vars=[], columns_to_ignore=[], verbose=False):
+    def __init__(self, csv_file, sep=',', target_vars=[], columns_to_ignore=[], verbose=False):
         self.target_vars = target_vars
         self.columns_to_ignore = columns_to_ignore
         self.verbose = verbose
@@ -28,7 +28,7 @@ class DataTable:
         if not os.path.exists(csv_file_path):
             raise Exception("Unable to find", csv_file_path)
         
-        self.dataframe = pd.read_csv(csv_file_path)
+        self.dataframe = pd.read_csv(csv_file_path, sep=sep)
         
         if verbose:
             print("Data table loaded, dimension", self.dataframe.shape)
@@ -139,8 +139,20 @@ class DataTable:
         
             
 if __name__ == '__main__':
-    
-    
+
+    # halcor dataset1 -- missing value imputation
+    dt = DataTable('data/halcor/All_Data_Reducted.csv', columns_to_ignore=['Timestamp'], target_vars=['Energy'], sep=';', verbose=True)
+    #dt.remove_rnd_values(0)
+    #dt.save('data/halcor/halcor1.csv')
+
+    # run simple imputers
+    from imputers.Imputer import SimpleImputerDACL
+    df = pd.read_csv('data/halcor/halcor1-25.csv')
+    simpleImputer = SimpleImputerDACL(dataset=df, columns_to_ignore=['Timestamp'])
+    sidf = simpleImputer.impute()
+    sidf.to_csv('data/halcor/halcor1-25-simple.csv', index=False)
+
+    """
     # Step 1 -- removing some values from a complete dataset
     dt = DataTable('data/eab_common_data.csv', 
         columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'],
@@ -175,3 +187,4 @@ if __name__ == '__main__':
     
     
     #dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'], verbose=True)
+    """

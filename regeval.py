@@ -185,6 +185,7 @@ def evaluateRegModels(data, target_feature):
 def evaluateForAllFeatures(data):
     num_features = data.data_matrix.shape[1]
     final_rep = []
+    print("MODEL,MAE,R2,MSE")
     for i in range(num_features):
         res = evaluateRegModels(data, i)
         if res != None:
@@ -219,11 +220,86 @@ def evaluateForTargetFeatures(data, target_features):
     for s in final_rep:
         print(s)
 
+def tabPFNeval_HALCOR(data_file):
+    import pandas as pd
+    from tabpfn import TabPFNRegressor
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+    from sklearn.model_selection import train_test_split
+
+    df = pd.read_csv(data_file, sep=",")
+    columns_to_drop = ['Energy', 'Timestamp']
+    X = df.drop(columns=columns_to_drop)
+    y = df['Energy']
+    # t = df['Timestamp']
+    df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+    X['Year'] = df['Timestamp'].dt.year
+    X['Month'] = df['Timestamp'].dt.month
+    X['Day'] = df['Timestamp'].dt.day
+    X['Hour'] = df['Timestamp'].dt.hour
+    X['Minute'] = df['Timestamp'].dt.minute
+
+    scaler = StandardScaler()
+    X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=128, random_state=42
+    )
+    #print("Dataset:", X_train.shape, X_test.shape)
+    #print("Dataset:", y_train.shape, y_test.shape)
+
+    tabpfn_regressor = TabPFNRegressor(random_state=42)
+    tabpfn_regressor.fit(X_train, y_train)
+    y_pred = tabpfn_regressor.predict(X_test)
+
+    score = r2_score(y_test, y_pred)
+    print(f"The R2 score:", "{:.4f}".format(score))
+    mae = mean_absolute_error(y_test, y_pred)
+    print(f"Mean Absolute Error (MAE): {mae:.4f}")
+    mse = mean_squared_error(y_test, y_pred)
+    print(f"Mean Squared Error (MSE): {mse:.4f}")
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    print(f"TabPFN RMSE: {rmse:.4f}")
+
 
 if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    #dt = DataTable('data_for_ml/25/sie-dataset1-nntl-mv25.csv', columns_to_ignore=['Time'])
-    dt = DataTable('data_for_ml/eab_common_data.csv', columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id'])
-    evaluateForTargetFeatures(dt, target_features=['throughput (MB/s)', 'Latency(ms)'])
+    """
+    dt = DataTable('data_for_ml/25/sie-dataset1-nntl-mv25.csv', columns_to_ignore=['Time'])
+    evaluateForAllFeatures(dt)
+    """
+
+    # halcor
+    
+    print("ORIGINAL DATA")
+    dt = DataTable('data/halcor/halcor1.csv', columns_to_ignore=['Timestamp'])
+    evaluateForTargetFeatures(dt, ['Energy'])
+
+    print("SIMPLE")
+    dt = DataTable('data/halcor/halcor1-25-simple.csv', columns_to_ignore=['Timestamp'])
+    evaluateForTargetFeatures(dt, ['Energy'])
+
+    print("NN")
+    dt = DataTable('data/halcor/halcor1-25-nn.csv', columns_to_ignore=['Timestamp'])
+    evaluateForTargetFeatures(dt, ['Energy'])
+
+    print("NNTL")
+    dt = DataTable('data/halcor/halcor1-25-nntl.csv', columns_to_ignore=['Timestamp'])
+    evaluateForTargetFeatures(dt, ['Energy'])
+    
+    
+    # tabfpn
+    print("\n\n\n")
+    print("ORIGINAL")
+    tabPFNeval_HALCOR('data/halcor/halcor1.csv')
+    
+    print("\n\nSIMPLE")
+    tabPFNeval_HALCOR('data/halcor/halcor1-25-simple.csv')
+
+    print("\n\nNN")
+    tabPFNeval_HALCOR('data/halcor/halcor1-25-nn.csv')
+
+    print("\n\nNNTL")
+    tabPFNeval_HALCOR('data/halcor/halcor1-25-nntl.csv')

@@ -16,7 +16,7 @@ from pyod.models import auto_encoder, ae1svm, cblof, deep_svdd
 from sklearn.metrics import balanced_accuracy_score, precision_score, recall_score
 
 class Base_PyOD:
-    def __init__(self, od_method, od_method_name, outlier_thr=0.95):
+    def __init__(self, od_method, od_method_name, outlier_thr=0.9):
         self.od_method = od_method
         self.od_method.verbose = False
         self.od_method_name = od_method_name
@@ -97,6 +97,53 @@ def compare_outlier_labels(l1, l2):
 
 ### EXPERIMENTS
 
+def compute_table_HALCOR():
+    dt_base = DataTable('data/halcor/halcor1.csv', columns_to_ignore=['Timestamp'])
+    ae = AE_PyOD()
+    ae.fit(dt_base)
+    ae.info()
+    s_ae_base = ae.get_outlier_scores()
+    l_ae_base = ae.get_outlier_labels()
+
+    imputed = [
+        ['data/halcor/halcor1-05-simple.csv', 'data/halcor/halcor1-05-nn.csv', 'data/halcor/halcor1-05-nntl.csv']
+    ]
+
+    print("SIMPLE,NN,NNTL")
+    for imp in imputed:
+        dt = DataTable(imp[0], columns_to_ignore=['Timestamp'])
+        ae = AE_PyOD()
+        ae.fit(dt)
+        # ae.info()
+        s = ae.get_outlier_scores()
+        l = ae.get_outlier_labels()
+        n1 = ae.get_num_outliers()
+        c1 = compare_outlier_scores(s_ae_base, s)
+        a1 = compare_outlier_labels(l_ae_base, l) 
+        
+        dt = DataTable(imp[1], columns_to_ignore=['Timestamp'])
+        ae = AE_PyOD()
+        ae.fit(dt)
+        # ae.info()
+        s = ae.get_outlier_scores()
+        l = ae.get_outlier_labels()
+        n2 = ae.get_num_outliers()
+        c2 = compare_outlier_scores(s_ae_base, s)
+        a2 = compare_outlier_labels(l_ae_base, l) 
+        
+        dt = DataTable(imp[2], columns_to_ignore=['Timestamp'])
+        ae = AE_PyOD()
+        ae.fit(dt)
+        # ae.info()
+        s = ae.get_outlier_scores()
+        l = ae.get_outlier_labels()
+        n3 = ae.get_num_outliers()
+        c3 = compare_outlier_scores(s_ae_base, s)
+        a3 = compare_outlier_labels(l_ae_base, l) 
+        
+        print(str(n1) + "," + str(n2) + "," + str(n3) + "," + str(c1) + "," + str(c2) + "," + str(c3) + "," + str(a1) + "," + str(a2) + "," + str(a3))
+        a3 = compare_outlier_labels(l_ae_base, l) 
+
 def compute_table_SIE():
     dt_base = DataTable('data_for_ml/sie-dataset1.csv', columns_to_ignore=['Time'])
     ae = AE_PyOD()
@@ -153,10 +200,10 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    compute_table_SIE()
+    compute_table_HALCOR()
     
-    dt = DataTable('data_for_ml/sie-dataset1.csv', columns_to_ignore=['Time'])
-    print('Data shape', dt.data_matrix.shape)
+    #dt = DataTable('data_for_ml/sie-dataset1.csv', columns_to_ignore=['Time'])
+    #print('Data shape', dt.data_matrix.shape)
     
     """
     ae = AE_PyOD()

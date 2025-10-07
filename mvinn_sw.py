@@ -208,7 +208,6 @@ class NeuralNet(nn.Module):
     
 
 def default_NN_arch(num_features):
-    #return [3 * num_features // 4, num_features // 2, num_features // 4]
     return [num_features // 2, num_features // 4]
 
 
@@ -266,8 +265,6 @@ class MVINN:
     
     def apply_sliding_window(self, X):
         dimX = X.shape[0]
-        dimY = X.shape[1]
-        #print(dimX, dimY)
         
         newX = []
         for i in range(dimX):
@@ -281,7 +278,6 @@ class MVINN:
             newX.append(newinst)
             
         newX = np.array(newX)
-        #print("-->", newX.shape[0], newX.shape[1])
         return newX
     
     def mvi_iteration(self, iteration_no, current_matrix):
@@ -289,14 +285,10 @@ class MVINN:
         scaler = StandardScaler()
         scaler.fit(current_matrix)
         data_matrix = scaler.transform(current_matrix)
-        
         next_matrix = data_matrix.copy()
-        
         num_features = data_matrix.shape[1]
-        # input_features = num_features - 1
         
         for target_feature in range(num_features):
-        # for target_feature in range(1):
             fname, missing_instances = self.mv_dict[target_feature]
             
             # form training data
@@ -307,7 +299,6 @@ class MVINN:
                 X = self.apply_sliding_window(X)
             
             if is_const(Y):
-                # print("Constant Y", fname, "skipped")
                 continue
             
             # form inference data
@@ -322,8 +313,6 @@ class MVINN:
             else:
                 nn = NeuralNet(self.nn_conf)
             
-            #print(X.shape)
-            #print(Y.shape)
             loss_start, loss_end = nn.train(X, Y)
 
             # make predictions for missing values
@@ -340,10 +329,8 @@ class MVINN:
                 print()
                 print("Finished training neural network for feature", target_feature, fname)
                 print("Missing instances", len(missing_instances))
-                #print("Training data shapes", X.shape, Y.shape)
-                #print("Inference data shape", inference_X.shape)
                 print("Loss start", loss_start.item(), "Loss end", loss_end.item())
-                # print("Neural network arch", nn)
+                
                 
         # inverse rescaling
         next_matrix = scaler.inverse_transform(next_matrix)
@@ -360,6 +347,8 @@ class MVINN:
     def impute(self):
         # setup neural network dictionary
         self.NN = {}
+        
+        self.results = dict()
         
         dm = self.start_matrix
         for i in range(self.num_iterations):
@@ -379,6 +368,8 @@ class MVINN:
                 print(cl)
                 print("MAE", self.start_mae[cl], self.final_mae[cl])
                 print("R^2", self.start_r2[cl], self.final_r2[cl])
+                
+                # self.results[cl] = (self.start_mae[cl], self.start_r2[cl], self.final_mae[cl], self.final_r2[cl])
             
                 if self.start_mae[cl] == 0.0:
                     continue
@@ -388,6 +379,7 @@ class MVINN:
                     
                 impr = (self.start_mae[cl] - self.final_mae[cl]) / self.start_mae[cl]     
                 impr *= 100
+                self.results[cl] = (self.start_mae[cl], self.start_r2[cl], self.final_mae[cl], self.final_r2[cl], impr)
                 print(impr)
                 
     def save(self, file_name):
@@ -400,11 +392,18 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'])
-    gt = DataTable('data/sie-dataset1.csv', columns_to_ignore=['Time'])
-    
-    sliding_window = 5
-    
+    #dt = DataTable('data/sie-dataset1-mv.csv', columns_to_ignore=['Time'])
+    #dt = DataTable('data/sie-dataset1-mv25.csv', columns_to_ignore=['Time'])
+    #gt = DataTable('data/sie-dataset1.csv', columns_to_ignore=['Time'])
+    #sliding_window = 5
+
+    print("HALCOR-25")    
+
+    dt = DataTable('data/halcor/halcor1-25.csv', columns_to_ignore=['Timestamp'], target_vars=['Energy'])
+    gt = DataTable('data/halcor/halcor1.csv', columns_to_ignore=['Timestamp'], target_vars=['Energy'])
+
+    sliding_window = 1
+
     num_features = dt.data_matrix.shape[1]
     input_features = num_features - 1
 
@@ -413,11 +412,82 @@ if __name__ == '__main__':
     nn_conf = NNConf(input_features, default_NN_arch(input_features), batch_norm=False, batch_size=32, dropout=0.1)
     tl_conf = TLConf(2, freeze=False)
     
-    mvinn = MVINN(dt, nn_conf, tl_conf=tl_conf, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=5)
+    mvinn = MVINN(dt, nn_conf, tl_conf=tl_conf, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=sliding_window)
     mvinn.impute()
-    #mvinn.save('data/sie-dataset1-nntl-mv25.csv')
+    mvinn.save('data/halcor/halcor1-25-nntl.csv')
+    nntl_res = mvinn.results
     
-    mvinn = MVINN(dt, nn_conf, tl_conf=None, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=5)
+    mvinn = MVINN(dt, nn_conf, tl_conf=None, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=sliding_window)
     mvinn.impute()
-    #mvinn.save('data/sie-dataset1-nn-mv25.csv')
+    mvinn.save('data/halcor/halcor1-25-nn.csv')
+    nn_res = mvinn.results
+
+
+    sliding_window = 5
+
+    num_features = dt.data_matrix.shape[1]
+    input_features = num_features - 1
+
+    input_features *= sliding_window
     
+    nn_conf = NNConf(input_features, default_NN_arch(input_features), batch_norm=False, batch_size=32, dropout=0.1)
+    tl_conf = TLConf(2, freeze=False)
+    
+    mvinn = MVINN(dt, nn_conf, tl_conf=tl_conf, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=sliding_window)
+    mvinn.impute()
+    mvinn.save('data/halcor/halcor1-25-nntl-sw.csv')
+    nntl_sw_res = mvinn.results
+    
+    mvinn = MVINN(dt, nn_conf, tl_conf=None, ground_truth=gt, num_iterations=5, verbose=False, sliding_window=sliding_window)
+    mvinn.impute()
+    mvinn.save('data/halcor/halcor1-25-nn-sw.csv')
+    nn_sw_res = mvinn.results
+    
+
+
+    print("\n\n")
+    print("FIELD,MAE-simple,R2-simple,MAE-nn,R2-nn,impr-nn,MAE-nntl,R2-nntl,impr-nntl,MAE-nn-sw,R2-nn-sw,impr-nn-sw,MAE-nntl-sw,R2-nntl-sw,impr-nntl-sw,BEST")
+    
+    for field in nn_res:
+        res_nn = nn_res[field]
+        res_nntl = nntl_res[field]
+        res_nn_sw = nn_sw_res[field]
+        res_nntl_sw = nntl_sw_res[field]
+        
+        mae_simple, r2_simple = round(res_nn[0], 4), round(res_nn[1], 4)
+        mae_nn, r2_nn = round(res_nn[2], 4), round(res_nn[3], 4)
+        mae_nntl, r2_nntl = round(res_nntl[2], 4), round(res_nntl[3], 4)
+        mae_nn_sw, r2_nn_sw = round(res_nn_sw[2], 4), round(res_nn_sw[3], 4)
+        mae_nntl_sw, r2_nntl_sw = round(res_nntl_sw[2], 4), round(res_nntl_sw[3], 4)
+
+        arr = [mae_simple, mae_nn, mae_nntl, mae_nn_sw, mae_nntl_sw]
+        method_arr = ["SIMPLE", "NN", "NNTL", "NN-SW", "NNTL-SW"]
+        min_value = min(arr)
+        min_index = arr.index(min_value)
+        best = method_arr[min_index]
+        
+
+        nn_impr = 0
+        if len(res_nn) == 5:
+            nn_impr = round(res_nn[4], 4)
+            
+        nntl_impr = 0
+        if len(res_nntl) == 5:
+            nntl_impr = round(res_nntl[4], 4)
+
+        nn_sw_impr = 0
+        if len(res_nn_sw) == 5:
+            nn_sw_impr = round(res_nn_sw[4], 4)
+            
+        nntl_sw_impr = 0
+        if len(res_nntl_sw) == 5:
+            nntl_sw_impr = round(res_nntl_sw[4], 4)
+            
+        s = field + "," + str(mae_simple) + "," + str(r2_simple) + "," + str(mae_nn) + "," + str(r2_nn) + "," + str(nn_impr) + ","
+        s += str(mae_nntl) + "," + str(r2_nntl) + "," + str(nntl_impr) + ","
+        s += str(mae_nn_sw) + "," + str(r2_nn_sw) + "," + str(nn_sw_impr) + "," 
+        s += str(mae_nntl_sw) + "," + str(r2_nntl_sw) + "," + str(nntl_sw_impr) + ","
+
+        s += best
+
+        print(s)

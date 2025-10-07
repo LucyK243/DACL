@@ -66,7 +66,7 @@ class ThresholdAnomalyLabeler:
             
     def save(self, outfile):
         self.df['ANOMALY'] = self.anomaly_vector
-        self.df.to_csv(outfile)
+        self.df.to_csv(outfile, index=False)
         return self.df
 
     
