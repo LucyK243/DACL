@@ -14,7 +14,7 @@ import random as rnd
 from sklearn.metrics import r2_score, mean_absolute_error
 
 class DataTable:
-    def __init__(self, csv_file, sep=',', target_vars=[], columns_to_ignore=[], verbose=False):
+    def __init__(self, csv_file, sep=',', target_vars=[], columns_to_ignore=[], verbose=False, encoding='utf-8'):
         self.target_vars = target_vars
         self.columns_to_ignore = columns_to_ignore
         self.verbose = verbose
@@ -28,7 +28,7 @@ class DataTable:
         if not os.path.exists(csv_file_path):
             raise Exception("Unable to find", csv_file_path)
         
-        self.dataframe = pd.read_csv(csv_file_path, sep=sep)
+        self.dataframe = pd.read_csv(csv_file_path, sep=sep, encoding=encoding)
         
         if verbose:
             print("Data table loaded, dimension", self.dataframe.shape)
@@ -58,8 +58,20 @@ class DataTable:
         
         for i in range(dimX):
             for j in range(dimY):
-                # print(self.data_matrix[i][j], type(self.data_matrix[i][j]))
-                if np.isnan(self.data_matrix[i][j]):
+                cell_type = type(self.data_matrix[i][j]).__name__
+                cell_value = self.data_matrix[i][j]
+                
+                missing_value = False
+                if cell_type == "str":
+                    if cell_value == "":
+                        missing_value = True
+                elif cell_type == "float" or cell_type == "int":
+                    if np.isnan(cell_value):
+                        missing_value = True
+                else:
+                    print("[WARNING] Non-covered type", cell_type)
+                
+                if missing_value:
                     if j not in self.missing_values_dict:
                         self.missing_values_dict[j] = (self.column_names[j], [i])
                     else:
@@ -72,12 +84,25 @@ class DataTable:
             print("Missing values identified")
             print("Missing values", total_nans, "total values", total_vals)
             
-            sorted_dict = dict(sorted(self.missing_values_dict.items()))
+            for feature_id in range(len(self.column_names)):
+                feature = self.column_names[feature_id]
+                
+                if feature_id not in self.missing_values_dict:
+                    print("NO-MISSING-VALUES for", feature)
+                else:
+                    tmi = len(self.missing_values_dict[feature_id][1])
+                    frac = round(tmi / dimX, 4)
+                    print("MVI-present", feature, frac, tmi)
+                    
+                
             
+            """
+            sorted_dict = dict(sorted(self.missing_values_dict.items()))
             for j in sorted_dict:
                 print("Column", j, "name", self.missing_values_dict[j][0])
                 print("Missing values present for", self.missing_values_dict[j][1])
                 print()
+            """
     
             
     def remove_rnd_values(self, p):
