@@ -65,7 +65,7 @@ class DataTable:
                 if cell_type == "str":
                     if cell_value == "":
                         missing_value = True
-                elif cell_type == "float" or cell_type == "int":
+                elif cell_type == "float" or cell_type == "float64" or cell_type == "int":
                     if np.isnan(cell_value):
                         missing_value = True
                 else:

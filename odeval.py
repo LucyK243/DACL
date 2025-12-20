@@ -106,7 +106,11 @@ def compute_table_HALCOR():
     l_ae_base = ae.get_outlier_labels()
 
     imputed = [
-        ['data/halcor/halcor1-05-simple.csv', 'data/halcor/halcor1-05-nn.csv', 'data/halcor/halcor1-05-nntl.csv']
+        ['data/halcor/halcor1-05-simple.csv', 'data/halcor/halcor1-05-nn.csv', 'data/halcor/halcor1-05-nntl.csv'],
+        ['data/halcor/halcor1-10-simple.csv', 'data/halcor/halcor1-10-nn.csv', 'data/halcor/halcor1-10-nntl.csv'],
+        ['data/halcor/halcor1-15-simple.csv', 'data/halcor/halcor1-15-nn.csv', 'data/halcor/halcor1-15-nntl.csv'],
+        ['data/halcor/halcor1-20-simple.csv', 'data/halcor/halcor1-20-nn.csv', 'data/halcor/halcor1-20-nntl.csv'],
+        ['data/halcor/halcor1-25-simple.csv', 'data/halcor/halcor1-25-nn.csv', 'data/halcor/halcor1-25-nntl.csv']
     ]
 
     print("SIMPLE,NN,NNTL")
