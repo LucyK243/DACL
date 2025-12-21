@@ -119,6 +119,30 @@ class DataTable:
             print("Total nans", total_nans, "out of", total_vals, "perc", total_nans / total_vals)
             
         self.dataframe = pd.DataFrame(self.data_matrix, columns=self.column_names)
+        
+        
+    def remove_rnd_target_values(self, p):
+        if len(self.target_vars) != 1:
+            print("[abort] 0 or more than 1 target variables")
+            return
+        
+        rmv_dict = dict()
+        total_nans = 0
+        
+        for index, _ in self.target_vars_data.iterrows():
+            gt = self.target_vars_data.iat[index, 0]
+            if rnd.random() <= p:
+                self.target_vars_data.iat[index, 0] = ""
+                total_nans += 1
+                if gt in rmv_dict:
+                    rmv_dict[gt] += 1
+                else:
+                    rmv_dict[gt] = 1 
+                    
+        print("Removing target values finished")
+        print("# values-removed", total_nans)
+        print(rmv_dict)
+        
             
     def save(self, out_file):
         if len(self.columns_to_ignore) > 0:
