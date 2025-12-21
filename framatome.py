@@ -17,10 +17,11 @@ def is_missing(cell_type, cell_value):
 def discover_mvi_rules(data_matrix, column_names, dimX, dimY):
     pattern_dict = dict()
     target_dict = dict()
-    mv_data_points = 0
+    event_dict = dict()
     
+    mv_data_points = 0
     target_field = "Anomaly_Class"
-    target_missing = 0
+    target_missing, num_events = 0, 0
     
     for i in range(dimX):
         missing_features = []        
@@ -46,9 +47,23 @@ def discover_mvi_rules(data_matrix, column_names, dimX, dimY):
                             target_dict[mf] = 1
                         else:
                             target_dict[mf] += 1
+            else:
+                num_events += 1
+                event_class = data_matrix[i][-1]
+                if event_class in event_dict:
+                    event_dict[event_class] += 1
+                else:
+                    event_dict[event_class] = 1
+                
                 
     print("Data points with missing values", mv_data_points)
     print("Data points with ", target_field, "missing", target_missing)
+    print()
+    print("Events info")
+    print("#events", num_events)
+    for event in event_dict:
+        print(event_dict[event], " -- ", event)
+    
     print()
     
     sorted_dict = dict(sorted(pattern_dict.items(), key=lambda item: item[1], reverse=True))
