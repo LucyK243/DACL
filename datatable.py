@@ -55,6 +55,7 @@ class DataTable:
         dimX, dimY = self.data_matrix.shape
         total_nans = 0
         self.missing_values_dict = dict()
+        self.features_with_missing_values = set()
         
         for i in range(dimX):
             for j in range(dimY):
@@ -72,6 +73,7 @@ class DataTable:
                     print("[WARNING] Non-covered type", cell_type)
                 
                 if missing_value:
+                    self.features_with_missing_values.add(self.column_names[j])
                     if j not in self.missing_values_dict:
                         self.missing_values_dict[j] = (self.column_names[j], [i])
                     else:
