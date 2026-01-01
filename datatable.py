@@ -50,6 +50,30 @@ class DataTable:
         
         self.identify_missing_values()
         
+        if len(target_vars) > 0:
+            self.identify_missing_targets()
+        
+    
+    def identify_missing_targets(self):
+        self.missing_labels = dict()
+        
+        for target in self.target_vars:
+            num_missing = 0
+            tdata = self.target_vars_data[target].to_numpy()
+            for i in range(len(tdata)):
+                val = str(tdata[i])
+                if val == "nan":
+                    num_missing += 1
+                    if not target in self.missing_labels:
+                        self.missing_labels[target] = [i]
+                    else:
+                        self.missing_labels[target].append(i)
+                        
+            if num_missing > 0:
+                print(target + " HAS missing labels, total missing", num_missing)
+            else:
+                print(target + " NO missing labels")
+        
     
     def identify_missing_values(self):
         dimX, dimY = self.data_matrix.shape
