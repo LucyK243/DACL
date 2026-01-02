@@ -68,11 +68,12 @@ class DataTable:
                         self.missing_labels[target] = [i]
                     else:
                         self.missing_labels[target].append(i)
-                        
-            if num_missing > 0:
-                print(target + " HAS missing labels, total missing", num_missing)
-            else:
-                print(target + " NO missing labels")
+            
+            if self.verbose:            
+                if num_missing > 0:
+                    print(target + " HAS missing labels, total missing", num_missing)
+                else:
+                    print(target + " NO missing labels")
         
     
     def identify_missing_values(self):
@@ -177,6 +178,19 @@ class DataTable:
         if len(self.target_vars) > 0:
             self.dataframe = pd.concat([self.dataframe, self.target_vars_data], axis=1)
             
+        self.dataframe.to_csv(out_file, index=False)
+
+    def save_with_ignored_data(self, out_file):
+        if len(self.columns_to_ignore) > 0:
+            self.dataframe = pd.concat([self.columns_to_ignore_data, self.dataframe], axis=1)
+
+        self.dataframe.to_csv(out_file, index=False)
+
+    def save_with_new_labels(self, out_file, new_labels):
+        if len(self.columns_to_ignore) > 0:
+            self.dataframe = pd.concat([self.columns_to_ignore_data, self.dataframe], axis=1)
+
+        self.dataframe = pd.concat([self.dataframe, new_labels], axis=1)
         self.dataframe.to_csv(out_file, index=False)
         
     def diff(self, other_dt):
