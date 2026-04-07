@@ -101,12 +101,8 @@ class KFoldCL:
 
         return res
 
-def evaluate_dataset(data_table):
+def evaluate_ds(predictors, targets, target_names):
     best_per_target = []
-
-    predictors = data_table.data_matrix
-    targets = data_table.target_vars_data
-    target_names = list(targets.columns)
     for target_name in target_names:
         print("Evaluating", target_name)
         target = targets[target_name].to_numpy()
@@ -134,8 +130,16 @@ def evaluate_dataset(data_table):
 
         best_per_target.append((target_name, max_f1_info))
 
-    return best_per_target
-        
+    return best_per_target   
+
+def evaluate_dataset(data_table):
+    predictors = data_table.data_matrix
+    targets = data_table.target_vars_data
+    target_names = list(targets.columns)
+    
+    return evaluate_ds(predictors, targets, target_names)
+
+       
 if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
