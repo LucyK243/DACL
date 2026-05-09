@@ -1,6 +1,6 @@
 import pandas as pd
 
-dt = pd.read_parquet("/home/lucy/2024_PANDORA/DACL/data/iV2Ip.parquet")
+dt = pd.read_parquet("/data/iV2Ip.parquet")
 
 dt.info()
 print()

@@ -40,7 +40,7 @@ class DataTable:
             self.columns_to_ignore_data = self.dataframe[self.columns_to_ignore]
         
         if len(target_vars) + len(columns_to_ignore) > 0:
-            self.dataframe.drop(axis=1, inplace=True, columns=self.target_vars + self.columns_to_ignore)
+            self.dataframe.drop(axis=1, inplace=True, labels=self.target_vars + self.columns_to_ignore)
         
         if verbose:
             print("Data table after drop operations", self.dataframe.shape)
