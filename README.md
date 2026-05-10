@@ -1,8 +1,9 @@
 # DACL
-PANDORA DACL component
+> PANDORA DACL component
 
 CONDA ENVIRONMENT CREATION:
-conda create --name dacl_env
+```sh
+conda env create -f environment.yml
 conda activate dacl_env
-conda install pip
 pip install -r requirements.txt
+```
