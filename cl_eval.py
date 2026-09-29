@@ -12,6 +12,8 @@ from sklearn.model_selection import KFold
 import numpy as np
 import time
 
+from imblearn.under_sampling import RandomUnderSampler
+
 from datatable import DataTable
 
 class SKLCModel:
@@ -101,7 +103,7 @@ class KFoldCL:
 
         return res
 
-def evaluate_ds(predictors, targets, target_names):
+def evaluate_ds(predictors, targets, target_names, undersampling=False):
     best_per_target = []
     for target_name in target_names:
         print("Evaluating", target_name)
@@ -110,6 +112,10 @@ def evaluate_ds(predictors, targets, target_names):
         cmodels = [
             SVM_SKLC(), NB_SKLC(), KNN_SKLC(), DT_SKLC(), RF_SKLC()
         ]
+
+        if undersampling:
+            rus = RandomUnderSampler(random_state=42)
+            predictors, target = rus.fit_resample(predictors, target)
 
         kfold = KFoldCL(predictors, target)
         res = kfold.evalMultiple(cmodels)
@@ -144,15 +150,16 @@ if __name__ == '__main__':
     from reproducibility import enable_reproducible_results
     enable_reproducible_results()
     
-    print("LOADING GROUND TRUTH")
-    ground_truth = DataTable('data/eab/eab-dataset2-labeled.csv', target_vars=['ANOMALY'], columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id', 'throughput (MB/s)', 'Latency(ms)'], verbose=False, sep=',')
-    evaluate_dataset(ground_truth)
+    #print("LOADING GROUND TRUTH")
+    #ground_truth = DataTable('data/eab/eab-dataset2-labeled.csv', target_vars=['ANOMALY'], columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id', 'throughput (MB/s)', 'Latency(ms)'], verbose=False, sep=',')
+    #ground_truth = DataTable('data/eab-1/eab1-full.csv', target_vars=['ANOMALY'], verbose=False, sep=',')
+    #evaluate_dataset(ground_truth)
 
     datasets = [
-        'data/eab/eab2_25_imp_LP.csv',
-        'data/eab/eab2_25_imp_LS.csv',
-        'data/eab/eab2_25_imp_NB.csv',
-        'data/eab/eab2_25_imp_TABPFN.csv'
+        'data/eab-1/eab1-full-15_imp_LP.csv',
+        'data/eab-1/eab1-full-15_imp_LS.csv',
+        'data/eab-1/eab1-full-15_imp_NB.csv',
+        'data/eab-1/eab1-full-15_imp_TABPFN.csv'
     ]
 
     imp_method = [
@@ -164,7 +171,8 @@ if __name__ == '__main__':
     for i in range(len(imp_method)):
         print()
         print("EVALUATING CLASSIFIERS FOR", imp_method[i])
-        dt = DataTable(datasets[i], target_vars=['ANOMALY'], columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id', 'throughput (MB/s)', 'Latency(ms)'], verbose=False, sep=',')
+        dt = DataTable(datasets[i], target_vars=['ANOMALY'], verbose=False, sep=',')
+        #dt = DataTable(datasets[i], target_vars=['ANOMALY'], columns_to_ignore=['header.stamp.sec', 'header.stamp.nanosec', 'header.frame_id', 'child_frame_id', 'throughput (MB/s)', 'Latency(ms)'], verbose=False, sep=',')
         best_cl = evaluate_dataset(dt)
         summary.append((imp_method[i], best_cl))
 
