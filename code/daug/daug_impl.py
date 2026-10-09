@@ -81,6 +81,9 @@ class Augmenter(ABC):
         
     
 class DACL_SMOTE(Augmenter):
+    '''
+    DACL wrapper for SMOTE method from imbalanced-learn library (https://imbalanced-learn.org)
+    '''
     def __init__(self, dataset: DataTable):
         super().__init__()
         self.dataset = dataset
@@ -104,6 +107,9 @@ class DACL_SMOTE(Augmenter):
 
         
 class DACL_ADASYN(Augmenter):
+    '''
+    DACL wrapper for imbalanced-learn ADASYN method (https://imbalanced-learn.org)
+    '''
     def __init__(self, dataset: DataTable):
         super().__init__()
         self.dataset = dataset
@@ -128,6 +134,9 @@ class DACL_ADASYN(Augmenter):
         
         
 class DACL_SVMSMOTE(Augmenter):
+    '''
+    DACL wrapper for SVMSMOTE method from imbalanced-learn (https://imbalanced-learn.org)
+    '''
     def __init__(self, dataset: DataTable):
         super().__init__()
         self.dataset = dataset
@@ -151,6 +160,9 @@ class DACL_SVMSMOTE(Augmenter):
         
         
 class DACL_KMeansSMOTE(Augmenter):
+    '''
+    DACL wrapper for KMeansSMOTE method from imbalanced-learn (https://imbalanced-learn.org)
+    '''
     def __init__(self, dataset: DataTable):
         super().__init__()
         self.dataset = dataset
@@ -174,6 +186,10 @@ class DACL_KMeansSMOTE(Augmenter):
 
         
 class DACL_TabPFGen(Augmenter):
+
+    '''
+    DACL wrapper for TabPFGen method (https://github.com/sebhaan/TabPFGen)
+    '''
     def __init__(self, dataset:DataTable, device:str='cpu'):
         super().__init__()
         self.dataset = dataset
