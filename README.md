@@ -36,7 +36,7 @@ code/
     └── thr_anom_labeler.py
 ```
 
-Python modules
+Python modules and packages:
 * dacl.py -- main entry point for DACL
 * exec_mvi -- module for executing DACL MVI (missing value inference)
 * exec_mli -- module for executing DACL MLI (missing label inference)
@@ -49,4 +49,6 @@ Python modules
 * daug -- package implementing DACL DAUG algorithms
 * utils -- package providing utilities
 
+DACL command line arguments:
+|foo|bar|
   
