@@ -1,7 +1,7 @@
 # DACL
 > PANDORA DACL component
 
-![DACL architecture][DACL-arch.png]
+![DACL architecture](DACL-arch.png)
 
 Installation / creating conda environment
 ```sh
