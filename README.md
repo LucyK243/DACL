@@ -1,6 +1,8 @@
 # DACL
 > PANDORA DACL component
 
+![DACL architecture][DACL-arch.png]
+
 Installation / creating conda environment
 ```sh
 conda env create -f environment.yml
