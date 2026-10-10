@@ -8,7 +8,30 @@ conda activate dacl_env
 pip install -r requirements.txt
 ```
 
-Source code tree
+> DACL Command-Line Arguments
+
+| Argument | Description |
+| :--- | :--- |
+| `--input <path>` | path to the input (incomplete) dataset |
+| `--output <path>` | path to the output (complete) dataset that will be created |
+| `--info` | boolean flag, when present DACL gives information about the input dataset (the number of features and data points) |
+| `--mvi_info` | boolean flag, when present DACL gives information about missing values detected in the input dataset (for real-valued features/columns) |
+| `--mli_info` | boolean flag, when present DACL gives information about missing labels detected in the input dataset (for features/columns containing discrete values) |
+| `--outlier_info` | boolean flag, when present DACL gives information about outliers detected in the input dataset |
+| `--gt <path>` | path to the ground-truth dataset used when evaluating DACL MVI, MLI and DAUG functionalities |
+| `--algorithm <name>` | indicates MVI, MLI or DAUG algorithm that will be applied to the input dataset to create the output dataset |
+| `--target_var <name>` | indicates target variable (class) in the input dataset for MLI and DAUG functionalities |
+| `--ignore_cols <names>` | columns (features) that will be ignored when applying DACL, given as a string with columns names separated by commas |
+| `--apply_mvi` | boolean flag, when present DACL executes missing value inference |
+| `--apply_mli` | boolean flag, when present DACL executes missing label inference |
+| `--apply_daug` | boolean flag, when present DACL executes data augmentation |
+| `--mvi_eval` | boolean flag, when present DACL executes primary evaluation of missing value inference on the input file considering the ground-truth dataset |
+| `--mvi_app_eval` | boolean flag, when present DACL executes applicative evaluation of missing value inference on the input file |
+| `--mli_eval` | boolean flag, when present DACL executes primary evaluation of missing label inference on the input file considering the ground-truth dataset |
+| `--mli_app_eval` | boolean flag, when present DACL executes applicative evaluation of missing label inference on the input file |
+| `--daug_eval` | boolean flag, when present DACL executes evaluation of data augmentation on the input file (augmented dataset) considering the ground-truth dataset (non-augmented dataset) |
+
+> Source code tree
 ```text
 code/
 ├── cl_eval.py
@@ -36,7 +59,7 @@ code/
     └── thr_anom_labeler.py
 ```
 
-Python modules and packages:
+> Python modules and packages:
 * dacl.py -- main entry point for DACL
 * exec_mvi -- module for executing DACL MVI (missing value inference)
 * exec_mli -- module for executing DACL MLI (missing label inference)
@@ -49,6 +72,5 @@ Python modules and packages:
 * daug -- package implementing DACL DAUG algorithms
 * utils -- package providing utilities
 
-DACL command line arguments:
-|foo|bar|
+
   
