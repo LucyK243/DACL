@@ -1,6 +1,12 @@
 # DACL
 > PANDORA DACL component
 
+DACL is a command-line tool for completing incomplete machine learning datasets. It performs missing value inference (MVI), missing label inference (MLI) and data augmentation (DAUG). DACL realizes several novel methods (e.g., MVI based on neural networks and transfer learning, MLI based on TabPFN) together with baselines and it provides implementation of primary and applicative (down-stream) evaluation of all core functionalities.
+
+DACL is developed within the PANDORA project: A Comprehensive Framework enabling the Delivery of Trustworthy Datasets for Efficient AIoT Operation (Grant agreement ID: 101135775), https://cordis.europa.eu/project/id/101135775, https://pandora-heu.eu/
+
+DACL demonstration video is available at: https://youtu.be/8haZL9hzHLI?si=GSnHr1fe7HDKiMfX
+
 ![DACL architecture](DACL-arch.png)
 
 Installation / creating conda environment
