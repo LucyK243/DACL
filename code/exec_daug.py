@@ -48,7 +48,7 @@ def apply_daug(
     elif algorithm == "kmeans-smote":
         daug = DACL_KMeansSMOTE(data_table)
     elif algorithm == "svm-smote":
-        daug = DACL_SVMSMOTE
+        daug = DACL_SVMSMOTE(data_table)
     else:
         raise Exception("Invalid MLI algorithm")
 
